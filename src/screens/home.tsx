@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE, Heatmap } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { EyeClosedIcon, EyeIcon } from "phosphor-react-native";
+import { EyeClosedIcon, EyeIcon, RssIcon } from "phosphor-react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useUserLocation } from "../hook/useUserLocation";
 import { api } from "../services/api"; // 1. IMPORTANDO SUA INSTÂNCIA DO AXIOS (ajuste o caminho se necessário)
@@ -31,9 +31,6 @@ export function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
 
-  // 2. CONSTANTES DE URL REMOVIDAS DAQUI
-
-  // 3. FUNÇÃO ATUALIZADA PARA USAR O AXIOS
   async function fetchBeeMapData(lat: number, lon: number) {
     setIsLoading(true);
     setHeatmapData([]);
@@ -44,7 +41,6 @@ export function Home() {
         params: { lat, lon }, // Axios envia parâmetros GET desta forma
       });
 
-      // Com axios, os dados já vêm no formato JSON em `response.data`
       setHeatmapData(response.data);
     } catch (error) {
       console.error(error);
@@ -92,6 +88,24 @@ export function Home() {
         {heatmapData.length > 0 && (
           <Heatmap points={heatmapData} radius={80} opacity={0.8} />
         )}
+
+        {heatmapData.map((point, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: point.latitude,
+              longitude: point.longitude,
+            }}
+            pinColor={
+              point.weight > 0.8
+                ? "red"
+                : point.weight > 0.5
+                ? "orange"
+                : "yellow"
+            }
+            onPress={() => navigation.navigate("Details", { id: "" })}
+          />
+        ))}
 
         {location && (
           <Marker coordinate={location.coords} zIndex={99}>
